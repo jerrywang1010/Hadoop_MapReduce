@@ -1,0 +1,2 @@
+public class KMeans6 {
+}
