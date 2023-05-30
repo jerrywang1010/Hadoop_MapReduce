@@ -10,9 +10,12 @@ public class LineCount {
     // MAPPER CODE
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
         private final static IntWritable one = new IntWritable(1);
-        private final static Text newLine = new Text("newLine");
+        private final static Text newLine = new Text("Linecount");
         public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-            output.collect(newLine, one);
+            String line = value.toString();
+            if (!line.isEmpty()) {
+                output.collect(newLine, one);
+            }
         }
     }
 

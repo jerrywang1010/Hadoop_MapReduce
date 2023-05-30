@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="MapReduceLineCount:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/MapReduceLineCount_jar</output-path>
-    <root id="archive" name="MapReduceLineCount.jar">
+  <artifact type="jar" name="MapReduceKmean3:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MapReduceKmean3_jar</output-path>
+    <root id="archive" name="MapReduceKmean3_jar.jar">
       <element id="module-output" name="MapReduceLineCount" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../.m2/repository/org/apache/hadoop/hadoop-annotations/3.3.5/hadoop-annotations-3.3.5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../.m2/repository/org/eclipse/jetty/jetty-util-ajax/9.4.48.v20220622/jetty-util-ajax-9.4.48.v20220622.jar" path-in-jar="/" />
