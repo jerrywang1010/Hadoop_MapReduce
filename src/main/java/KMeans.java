@@ -1,5 +1,4 @@
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -7,18 +6,14 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.util.*;
-import org.checkerframework.checker.units.qual.K;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class KMeans3 {
-    private static final int k = 3;
+public class KMeans {
+    private static int k;
     private static final int maxIter = 20;
     public static class Point {
         public Point(String s) {
@@ -78,24 +73,28 @@ public class KMeans3 {
         }
 
         List<Point> centroids = new ArrayList<>();
-        int sliceSize = allPoints.size() / KMeans3.k;
-        for (int i = 0; i < KMeans3.k - 1; i ++) {
-            Point sum = new Point(0, 0);
-            for (int j = i * sliceSize; j < (i + 1) * sliceSize; j ++) {
-                sum = sum.add(allPoints.get(j));
-            }
-            Point centroid = new Point(sum.getX() / sliceSize, sum.getY() / sliceSize);
-            centroids.add(centroid);
+        // choose first k points as centroid
+        for (int i = 0; i < KMeans.k; i ++) {
+            centroids.add(allPoints.get(i));
         }
-
-        // last centroid
-        Point sum = new Point(0, 0);
-        for (int i = (KMeans3.k - 1) * sliceSize; i < allPoints.size(); i ++) {
-            sum = sum.add(allPoints.get(i));
-        }
-        Point lastCentroid = new Point(sum.getX() / (allPoints.size() - (KMeans3.k - 1) * sliceSize),
-                                sum.getY() / (allPoints.size() - (KMeans3.k - 1) * sliceSize));
-        centroids.add(lastCentroid);
+//        int sliceSize = allPoints.size() / KMeans.k;
+//        for (int i = 0; i < KMeans.k - 1; i ++) {
+//            Point sum = new Point(0, 0);
+//            for (int j = i * sliceSize; j < (i + 1) * sliceSize; j ++) {
+//                sum = sum.add(allPoints.get(j));
+//            }
+//            Point centroid = new Point(sum.getX() / sliceSize, sum.getY() / sliceSize);
+//            centroids.add(centroid);
+//        }
+//
+//        // last centroid
+//        Point sum = new Point(0, 0);
+//        for (int i = (KMeans.k - 1) * sliceSize; i < allPoints.size(); i ++) {
+//            sum = sum.add(allPoints.get(i));
+//        }
+//        Point lastCentroid = new Point(sum.getX() / (allPoints.size() - (KMeans.k - 1) * sliceSize),
+//                                sum.getY() / (allPoints.size() - (KMeans.k - 1) * sliceSize));
+//        centroids.add(lastCentroid);
 
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fs.create(centerPath, true)));
         for (Point p : centroids) {
@@ -205,8 +204,8 @@ public class KMeans3 {
 
     public static int run1Iter(Configuration conf, String[] args) throws Exception {
         long startTime = System.currentTimeMillis();
-        Job job = Job.getInstance(conf, "Kmean-3");
-        job.setJarByClass(KMeans3.class);
+        Job job = Job.getInstance(conf, "Kmean");
+        job.setJarByClass(KMeans.class);
 
         job.setMapperClass(PointsMapper.class);
         job.setReducerClass(PointsReducer.class);
@@ -229,6 +228,11 @@ public class KMeans3 {
     }
 
     public static void main(String[] args) throws Exception {
+        if (args.length != 3) {
+            System.out.println("Usage: Kmean3.jar $inputPath $outputPath $k");
+            System.exit(1);
+        }
+        KMeans.k = Integer.parseInt(args[2]);
         Configuration conf = new Configuration();
 
         Path centroidPath = new Path("centroid.txt");
@@ -236,7 +240,7 @@ public class KMeans3 {
         initializeCentroid(conf, new Path(args[0]));
         int iter = 0;
         long startTime = System.currentTimeMillis();
-        while (iter < KMeans3.maxIter) {
+        while (iter < KMeans.maxIter) {
             System.out.println("Iteration=" + iter);
             int exitCode = run1Iter(conf, args);
             if (exitCode != 0) {
